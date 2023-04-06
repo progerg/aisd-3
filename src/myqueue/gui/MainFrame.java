@@ -1,27 +1,24 @@
-package gui;
+package myqueue.gui;
 
-import printer.Printer;
-import printer.Task;
-import utils.ArrayUtils;
-import utils.JTableUtils;
-import utils.SwingUtils;
+import myqueue.printer.Printer;
+import myqueue.printer.TaskWithTime;
+import myqueue.utils.ArrayUtils;
+import myqueue.utils.JTableUtils;
+import myqueue.utils.SwingUtils;
 
 import javax.swing.*;
-import java.text.ParseException;
+import java.util.Map;
 
 public class MainFrame extends JFrame {
     private JTable inputTable;
-    private JTable printerTable;
     private JTable doneTable;
-    private JPanel mainPanel;
+
     private JScrollPane jScrollPane;
+    private JPanel mainPanel;
     private JButton startButton;
-    private JTextArea logField;
     private JTable addTaskTable;
     private JButton addTask;
-
-    private final Printer printer = new Printer(inputTable, printerTable, doneTable,
-            logField);
+    private final Printer printer = new Printer();
 
 
     public MainFrame() {
@@ -35,32 +32,16 @@ public class MainFrame extends JFrame {
                 true, false, false);
         JTableUtils.initJTableForArray(inputTable, 40, true,
                 true, false, false);
-        JTableUtils.initJTableForArray(printerTable, 40, true, true, false, false);
         JTableUtils.initJTableForArray(doneTable, 40, true, true, false, false);
         startButton.addActionListener(e -> {
             JButton source = (JButton) e.getSource();
             source.setEnabled(false);
             addTask.setEnabled(false);
-            try {
-                printer.checkTasks(3);
-            } catch (Exception ex) {
-                SwingUtils.showErrorMessageBox(ex);
-            }
+            Map<TaskWithTime, Integer> hashMap = printer.checkTasks();
+            updateDoneTable(hashMap);
+            JTableUtils.writeArrayToJTable(inputTable, new int[0][]);
             source.setEnabled(true);
             addTask.setEnabled(true);
-//            try {
-//                Thread thread = new Thread(() -> {
-//                    try {
-//                        printer.checkTasks(3);
-//                    } catch (Exception ex) {
-//                        SwingUtils.showErrorMessageBox(ex);
-//                    }
-//                });
-//                thread.start();
-//
-//            } catch (Exception ex) {
-//                SwingUtils.showErrorMessageBox(ex);
-//            }
         });
 
         addTask.addActionListener(e -> {
@@ -77,7 +58,7 @@ public class MainFrame extends JFrame {
 
                 int[] arr = JTableUtils.readIntArrayFromJTable(addTaskTable);
                 if (arr != null) {
-                    if (printer.addTask(new Task(arr))) {
+                    if (printer.addTask(new TaskWithTime(arr))) {
                         matrix = ArrayUtils.insertRowInto2DArray(matrix, matrix.length, arr);
                     }
                 }
@@ -89,8 +70,19 @@ public class MainFrame extends JFrame {
         });
 
         JTableUtils.writeArrayToJTable(addTaskTable, new int[][]{
-                {1, 3, 4}
+                {1, 3, 4, 5}
         });
+    }
+
+    public void updateDoneTable(Map<TaskWithTime, Integer> hashMap) {
+        int[][] matrix = new int[hashMap.size()][];
+        int i = 0;
+        for (Map.Entry<TaskWithTime, Integer> entry : hashMap.entrySet()) {
+            matrix[i] = entry.getKey().toIntArrayWithTime();
+            matrix[i][3] = entry.getValue();
+            i++;
+        }
+        JTableUtils.writeArrayToJTable(doneTable, matrix);
     }
 
     public static void main(String[] args) {

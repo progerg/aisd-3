@@ -1,4 +1,4 @@
-package utils;
+package javaqueue.utils;
 
 import java.awt.Component;
 import java.awt.Dimension;

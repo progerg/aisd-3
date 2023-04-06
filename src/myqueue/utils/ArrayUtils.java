@@ -1,13 +1,9 @@
-package utils;
+package myqueue.utils;
 
-import java.util.Scanner;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Random;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.*;
 
 public class ArrayUtils {
     private static final Random RND = new Random();
